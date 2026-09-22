@@ -169,8 +169,58 @@
         <button class="btn btn--outline btn--small" id="btn-sair">Sair</button>
       </div>
 
-      <div class="painel-placeholder">
-        <p>Sua conta foi criada com sucesso. As telas de solicitação de carona, pagamento e histórico chegam nos próximos incrementos.</p>
+      <!-- ===== Painel do universitário: pedir carona / acompanhar status ===== -->
+      <div class="painel-bloco" id="painel-universitario" hidden>
+
+        <div class="panel panel--wide" id="bloco-form-solicitacao">
+          <h2 class="panel__title panel__title--sm">Pra onde você vai?</h2>
+          <p class="panel__sub">Informe a origem e o destino. O GPS aqui é só ilustrativo — use os endereços por texto mesmo.</p>
+
+          <form id="form-solicitacao" class="form">
+            <div class="form__row">
+              <label for="sol-origem">Origem</label>
+              <input type="text" id="sol-origem" name="origem" placeholder="Ex.: Rua das Flores, 120" required>
+            </div>
+            <div class="form__row">
+              <label for="sol-destino">Destino</label>
+              <input type="text" id="sol-destino" name="destino" placeholder="Ex.: Campus Central — Bloco B" required>
+            </div>
+            <button type="submit" class="btn btn--primary btn--full">Solicitar carona</button>
+          </form>
+        </div>
+
+        <div class="panel panel--wide" id="bloco-status-corrida" hidden>
+          <h2 class="panel__title panel__title--sm">Sua carona</h2>
+
+          <div class="rota-mapa" id="rota-mapa">
+            <div class="rota-mapa__ponto">
+              <span class="rota-mapa__marcador rota-mapa__marcador--origem"></span>
+              <span id="status-origem">—</span>
+            </div>
+            <div class="rota-mapa__linha"></div>
+            <div class="rota-mapa__ponto">
+              <span class="rota-mapa__marcador rota-mapa__marcador--destino"></span>
+              <span id="status-destino">—</span>
+            </div>
+          </div>
+
+          <div class="status-badge" id="status-badge">Aguardando motorista</div>
+          <p id="status-detalhe">Assim que um motorista aceitar, os dados dele aparecem aqui.</p>
+
+          <button type="button" class="btn btn--outline btn--full" id="btn-cancelar-solicitacao">Cancelar solicitação</button>
+        </div>
+      </div>
+
+      <!-- ===== Painel do motorista: solicitações recebidas ===== -->
+      <div class="painel-bloco" id="painel-motorista" hidden>
+        <h2 class="panel__title panel__title--sm">Solicitações recebidas</h2>
+        <p class="panel__sub">Universitários pedindo carona na sua rota.</p>
+
+        <div id="lista-solicitacoes" class="lista-solicitacoes">
+          <!-- preenchido via JS -->
+        </div>
+
+        <p class="lista-vazia" id="lista-vazia" hidden>Nenhuma solicitação pendente no momento.</p>
       </div>
     </section>
 
