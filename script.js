@@ -30,8 +30,23 @@ const db = {
   ],
 };
 
+db.caronas = [
+  // uma solicitação de exemplo, já pendente, pro motorista de exemplo ver algo ao entrar
+  {
+    id: "c1",
+    passageiroId: "u1",
+    passageiroNome: "Ana Souza",
+    origem: "Rua das Flores, 120",
+    destino: "Campus Central — Bloco B",
+    status: "pendente", // pendente | aceita | recusada
+    motoristaId: null,
+    motoristaNome: null,
+  },
+];
+
 let usuarioLogado = null;
 let perfilCadastroAtual = "universitario";
+let proximoIdCarona = 2;
 
 // ---- Navegação entre telas --------------------------------
 function irParaTela(nomeTela) {
@@ -176,7 +191,147 @@ function abrirPainel() {
   perfilLabel.textContent =
     usuarioLogado.perfil === "motorista" ? "Painel do motorista" : "Painel do universitário";
 
+  const painelUniversitario = document.getElementById("painel-universitario");
+  const painelMotorista = document.getElementById("painel-motorista");
+
+  const ehMotorista = usuarioLogado.perfil === "motorista";
+  painelUniversitario.hidden = ehMotorista;
+  painelMotorista.hidden = !ehMotorista;
+
+  if (ehMotorista) {
+    renderSolicitacoesMotorista();
+  } else {
+    renderStatusUniversitario();
+  }
+
   irParaTela("painel");
+}
+
+// ---- Universitário: solicitar carona e acompanhar status -----
+const formSolicitacao = document.getElementById("form-solicitacao");
+const blocoFormSolicitacao = document.getElementById("bloco-form-solicitacao");
+const blocoStatusCorrida = document.getElementById("bloco-status-corrida");
+
+function caronaAtivaDoUsuario() {
+  // considera "ativa" qualquer solicitação do usuário que ainda não foi recusada
+  return db.caronas.find(
+    (c) => c.passageiroId === usuarioLogado.id && c.status !== "recusada"
+  );
+}
+
+function renderStatusUniversitario() {
+  const carona = caronaAtivaDoUsuario();
+
+  if (!carona) {
+    blocoFormSolicitacao.hidden = false;
+    blocoStatusCorrida.hidden = true;
+    return;
+  }
+
+  blocoFormSolicitacao.hidden = true;
+  blocoStatusCorrida.hidden = false;
+
+  document.getElementById("status-origem").textContent = carona.origem;
+  document.getElementById("status-destino").textContent = carona.destino;
+
+  const badge = document.getElementById("status-badge");
+  const detalhe = document.getElementById("status-detalhe");
+
+  badge.classList.remove("status-aceita", "status-recusada");
+
+  if (carona.status === "pendente") {
+    badge.textContent = "Aguardando motorista";
+    detalhe.textContent = "Assim que um motorista aceitar, os dados dele aparecem aqui.";
+  } else if (carona.status === "aceita") {
+    badge.classList.add("status-aceita");
+    badge.textContent = "Motorista a caminho";
+    detalhe.textContent = `${carona.motoristaNome} aceitou sua carona.`;
+  }
+}
+
+formSolicitacao.addEventListener("submit", (evento) => {
+  evento.preventDefault();
+
+  const dados = new FormData(formSolicitacao);
+  const origem = dados.get("origem").trim();
+  const destino = dados.get("destino").trim();
+
+  if (!origem || !destino) return;
+
+  db.caronas.push({
+    id: `c${proximoIdCarona++}`,
+    passageiroId: usuarioLogado.id,
+    passageiroNome: usuarioLogado.nome,
+    origem,
+    destino,
+    status: "pendente",
+    motoristaId: null,
+    motoristaNome: null,
+  });
+
+  formSolicitacao.reset();
+  renderStatusUniversitario();
+});
+
+document.getElementById("btn-cancelar-solicitacao").addEventListener("click", () => {
+  const carona = caronaAtivaDoUsuario();
+  if (!carona) return;
+
+  db.caronas = db.caronas.filter((c) => c.id !== carona.id);
+  renderStatusUniversitario();
+});
+
+// ---- Motorista: ver e responder solicitações ------------------
+const listaSolicitacoes = document.getElementById("lista-solicitacoes");
+const listaVazia = document.getElementById("lista-vazia");
+
+function renderSolicitacoesMotorista() {
+  const pendentes = db.caronas.filter((c) => c.status === "pendente");
+
+  listaSolicitacoes.innerHTML = "";
+
+  if (pendentes.length === 0) {
+    listaVazia.hidden = false;
+    return;
+  }
+  listaVazia.hidden = true;
+
+  pendentes.forEach((carona) => {
+    const card = document.createElement("div");
+    card.className = "solicitacao-card";
+    card.innerHTML = `
+      <p class="solicitacao-card__passageiro">${carona.passageiroNome}</p>
+      <div class="solicitacao-card__rota">
+        <span>De: ${carona.origem}</span>
+        <span>Para: ${carona.destino}</span>
+      </div>
+      <div class="solicitacao-card__acoes">
+        <button class="btn btn--primary" data-aceitar="${carona.id}">Aceitar</button>
+        <button class="btn btn--reject" data-recusar="${carona.id}">Recusar</button>
+      </div>
+    `;
+    listaSolicitacoes.appendChild(card);
+  });
+
+  listaSolicitacoes.querySelectorAll("[data-aceitar]").forEach((btn) => {
+    btn.addEventListener("click", () => responderSolicitacao(btn.dataset.aceitar, "aceita"));
+  });
+  listaSolicitacoes.querySelectorAll("[data-recusar]").forEach((btn) => {
+    btn.addEventListener("click", () => responderSolicitacao(btn.dataset.recusar, "recusada"));
+  });
+}
+
+function responderSolicitacao(caronaId, novoStatus) {
+  const carona = db.caronas.find((c) => c.id === caronaId);
+  if (!carona) return;
+
+  carona.status = novoStatus;
+  if (novoStatus === "aceita") {
+    carona.motoristaId = usuarioLogado.id;
+    carona.motoristaNome = usuarioLogado.nome;
+  }
+
+  renderSolicitacoesMotorista();
 }
 
 document.getElementById("btn-sair").addEventListener("click", () => {
