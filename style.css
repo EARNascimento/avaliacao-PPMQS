@@ -362,6 +362,100 @@ input:focus {
 .painel-placeholder p { margin: 0; }
 
 /* =========================================================
+   Etapa 2 — Solicitação, mapa simulado e lista do motorista
+   ========================================================= */
+.panel--wide { max-width: 560px; }
+.panel__title--sm { font-size: 1.3rem; }
+
+.painel-bloco + .painel-bloco { margin-top: 0; }
+#bloco-status-corrida { margin-top: 1.5rem; }
+
+/* Mapa simulado: dois pontos ligados por uma rota tracejada */
+.rota-mapa {
+  background: var(--bg);
+  border: 1px dashed var(--line);
+  border-radius: 10px;
+  padding: 1.4rem 1.2rem;
+  margin-bottom: 1.2rem;
+}
+
+.rota-mapa__ponto {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.rota-mapa__marcador {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.rota-mapa__marcador--origem { background: var(--teal); }
+.rota-mapa__marcador--destino { background: var(--brick); }
+
+.rota-mapa__linha {
+  margin: 0.3rem 0 0.3rem 5px;
+  height: 22px;
+  border-left: 2px dashed var(--line);
+}
+
+/* Status da corrida */
+.status-badge {
+  display: inline-block;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  margin-bottom: 0.6rem;
+  background: rgba(242, 183, 5, 0.18);
+  color: var(--accent-ink);
+}
+.status-badge.status-aceita { background: rgba(44, 110, 99, 0.15); color: var(--teal); }
+.status-badge.status-recusada { background: rgba(193, 68, 58, 0.12); color: var(--brick); }
+
+/* Lista de solicitações (visão do motorista) */
+.lista-solicitacoes { display: flex; flex-direction: column; gap: 0.9rem; }
+
+.solicitacao-card {
+  background: var(--surface);
+  border: 1.5px dashed var(--line);
+  border-radius: 12px;
+  padding: 1.2rem 1.3rem;
+}
+
+.solicitacao-card__passageiro {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.solicitacao-card__rota {
+  font-size: 0.88rem;
+  color: var(--ink-soft);
+  margin-bottom: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.solicitacao-card__acoes { display: flex; gap: 0.6rem; }
+.solicitacao-card__acoes .btn { flex: 1; }
+
+.btn--reject { background: transparent; border-color: var(--brick); color: var(--brick); }
+.btn--reject:hover { background: var(--brick); color: #fff; }
+
+.lista-vazia {
+  text-align: center;
+  padding: 1.5rem 0;
+  color: var(--ink-soft);
+}
+
+/* =========================================================
    Responsivo
    ========================================================= */
 @media (max-width: 600px) {
