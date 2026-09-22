@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Carona Solidária — Universitários</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ===== NAVEGAÇÃO ("paradas da rota") ===== -->
+  <header class="route-nav">
+    <div class="route-nav__brand">Carona<span>Solidária</span></div>
+    <nav class="route-stops" aria-label="Navegação principal">
+      <button class="stop is-active" data-screen="home">
+        <span class="stop__dot"></span><span class="stop__label">Início</span>
+      </button>
+      <button class="stop" data-screen="cadastro">
+        <span class="stop__dot"></span><span class="stop__label">Cadastro</span>
+      </button>
+      <button class="stop" data-screen="login">
+        <span class="stop__dot"></span><span class="stop__label">Entrar</span>
+      </button>
+    </nav>
+  </header>
+
+  <main class="app">
+
+    <!-- ===== TELA: HOME ===== -->
+    <section class="screen is-active" id="screen-home">
+      <div class="hero">
+        <p class="hero__eyebrow">Rota compartilhada, custo dividido</p>
+        <h1 class="hero__title">Chegue junto. <br>Divida a carona.</h1>
+        <p class="hero__sub">Conectamos universitários que vão pro mesmo lugar — motoristas com vaga sobrando e passageiros procurando uma carona segura até a faculdade ou pra casa.</p>
+        <div class="hero__actions">
+          <button class="btn btn--primary" data-screen="cadastro" data-perfil="universitario">Quero uma carona</button>
+          <button class="btn btn--outline" data-screen="cadastro" data-perfil="motorista">Quero dirigir</button>
+        </div>
+      </div>
+
+      <div class="how-it-works">
+        <h2>Como funciona</h2>
+        <ol class="road">
+          <li class="road__stop">
+            <span class="road__marker">1</span>
+            <div>
+              <h3>Cadastre-se</h3>
+              <p>Como motorista, com os dados do carro, ou como universitário, pra pedir caronas.</p>
+            </div>
+          </li>
+          <li class="road__stop">
+            <span class="road__marker">2</span>
+            <div>
+              <h3>Informe a rota</h3>
+              <p>Origem e destino — pra faculdade de manhã, pra casa à noite.</p>
+            </div>
+          </li>
+          <li class="road__stop">
+            <span class="road__marker">3</span>
+            <div>
+              <h3>Peça ou aceite</h3>
+              <p>O motorista aceita a solicitação e a viagem começa.</p>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ===== TELA: CADASTRO ===== -->
+    <section class="screen" id="screen-cadastro">
+      <div class="panel">
+        <h1 class="panel__title">Criar conta</h1>
+        <p class="panel__sub">Escolha seu perfil pra começar.</p>
+
+        <div class="perfil-toggle" role="tablist" aria-label="Escolha de perfil">
+          <button class="perfil-toggle__btn is-active" data-perfil="universitario" role="tab" aria-selected="true">
+            Universitário
+          </button>
+          <button class="perfil-toggle__btn" data-perfil="motorista" role="tab" aria-selected="false">
+            Motorista
+          </button>
+        </div>
+
+        <form id="form-cadastro" class="form" novalidate>
+          <div class="form__row">
+            <label for="cad-nome">Nome completo</label>
+            <input type="text" id="cad-nome" name="nome" placeholder="Ex.: Maria Oliveira" required>
+          </div>
+
+          <div class="form__row">
+            <label for="cad-email">E-mail universitário</label>
+            <input type="email" id="cad-email" name="email" placeholder="nome@universidade.edu.br" required>
+          </div>
+
+          <div class="form__row">
+            <label for="cad-senha">Senha</label>
+            <input type="password" id="cad-senha" name="senha" placeholder="Mínimo 6 caracteres" minlength="6" required>
+          </div>
+
+          <!-- Campos extras só para motorista -->
+          <fieldset class="form__veiculo" id="campos-veiculo" hidden>
+            <legend>Dados do veículo</legend>
+
+            <div class="form__row">
+              <label for="cad-carro-modelo">Modelo do carro</label>
+              <input type="text" id="cad-carro-modelo" name="carroModelo" placeholder="Ex.: Chevrolet Onix">
+            </div>
+
+            <div class="form__row-group">
+              <div class="form__row">
+                <label for="cad-carro-placa">Placa</label>
+                <input type="text" id="cad-carro-placa" name="carroPlaca" placeholder="ABC1D23">
+              </div>
+              <div class="form__row">
+                <label for="cad-carro-cor">Cor</label>
+                <input type="text" id="cad-carro-cor" name="carroCor" placeholder="Ex.: Prata">
+              </div>
+            </div>
+
+            <div class="form__row">
+              <label for="cad-carro-vagas">Vagas disponíveis</label>
+              <input type="number" id="cad-carro-vagas" name="carroVagas" min="1" max="6" placeholder="Ex.: 3">
+            </div>
+          </fieldset>
+
+          <p class="form__error" id="cadastro-erro" role="alert" hidden></p>
+
+          <button type="submit" class="btn btn--primary btn--full">Criar conta</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- ===== TELA: LOGIN ===== -->
+    <section class="screen" id="screen-login">
+      <div class="panel panel--narrow">
+        <h1 class="panel__title">Entrar</h1>
+        <p class="panel__sub">Use o e-mail e senha que você cadastrou.</p>
+
+        <form id="form-login" class="form" novalidate>
+          <div class="form__row">
+            <label for="login-email">E-mail</label>
+            <input type="email" id="login-email" name="email" placeholder="nome@universidade.edu.br" required>
+          </div>
+
+          <div class="form__row">
+            <label for="login-senha">Senha</label>
+            <input type="password" id="login-senha" name="senha" placeholder="Sua senha" required>
+          </div>
+
+          <p class="form__error" id="login-erro" role="alert" hidden></p>
+
+          <button type="submit" class="btn btn--primary btn--full">Entrar</button>
+        </form>
+
+        <p class="panel__footnote">Ainda não tem conta? <button class="link-btn" data-screen="cadastro">Cadastre-se</button></p>
+      </div>
+    </section>
+
+    <!-- ===== TELA: PAINEL (pós-login, base para próximos incrementos) ===== -->
+    <section class="screen" id="screen-painel">
+      <div class="painel-header">
+        <div>
+          <p class="painel-header__eyebrow" id="painel-perfil-label">Painel do universitário</p>
+          <h1 id="painel-saudacao">Olá!</h1>
+        </div>
+        <button class="btn btn--outline btn--small" id="btn-sair">Sair</button>
+      </div>
+
+      <div class="painel-placeholder">
+        <p>Sua conta foi criada com sucesso. As telas de solicitação de carona, pagamento e histórico chegam nos próximos incrementos.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
