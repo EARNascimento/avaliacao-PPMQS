@@ -247,11 +247,23 @@
           <p id="status-detalhe">Assim que um motorista aceitar, os dados dele aparecem aqui.</p>
           <p class="valor-corrida" id="valor-corrida-passageiro">Valor estimado: R$ 0,00</p>
 
+          <div class="compartilhar-local" id="compartilhar-local" hidden>
+            <button type="button" class="btn btn--outline btn--full" id="btn-compartilhar-local">Compartilhar minha localização</button>
+
+            <div class="compartilhar-local__resultado" id="compartilhar-local-resultado" hidden>
+              <p class="compartilhar-local__msg" id="compartilhar-local-msg"></p>
+              <div class="compartilhar-local__link-row">
+                <input type="text" id="compartilhar-local-link" readonly>
+                <button type="button" class="btn btn--primary btn--small" id="btn-copiar-link">Copiar link</button>
+              </div>
+            </div>
+          </div>
+
           <button type="button" class="btn btn--outline btn--full" id="btn-cancelar-solicitacao">Cancelar solicitação</button>
         </div>
       </div>
 
-      <!-- ===== Painel do motorista: solicitações recebidas ===== -->
+      <!-- ===== Painel do motorista: solicitações recebidas + histórico ===== -->
       <div class="painel-bloco" id="painel-motorista" hidden>
         <div class="motorista-saldo" id="motorista-saldo">Saldo disponível: R$ 0,00</div>
 
@@ -261,14 +273,32 @@
           <button type="button" class="btn btn--primary btn--full" id="btn-transferir">Transferir para minha conta</button>
         </div>
 
-        <h2 class="panel__title panel__title--sm">Solicitações recebidas</h2>
-        <p class="panel__sub">Universitários pedindo carona na sua rota.</p>
-
-        <div id="lista-solicitacoes" class="lista-solicitacoes">
-          <!-- preenchido via JS -->
+        <div class="perfil-toggle motorista-tabs" role="tablist" aria-label="Seções do motorista">
+          <button class="perfil-toggle__btn is-active" data-aba="solicitacoes" role="tab" aria-selected="true">Solicitações</button>
+          <button class="perfil-toggle__btn" data-aba="historico" role="tab" aria-selected="false">Histórico</button>
         </div>
 
-        <p class="lista-vazia" id="lista-vazia" hidden>Nenhuma solicitação pendente no momento.</p>
+        <div class="aba-motorista" id="aba-solicitacoes">
+          <h2 class="panel__title panel__title--sm">Solicitações recebidas</h2>
+          <p class="panel__sub">Universitários pedindo carona na sua rota.</p>
+
+          <div id="lista-solicitacoes" class="lista-solicitacoes">
+            <!-- preenchido via JS -->
+          </div>
+
+          <p class="lista-vazia" id="lista-vazia" hidden>Nenhuma solicitação pendente no momento.</p>
+        </div>
+
+        <div class="aba-motorista" id="aba-historico" hidden>
+          <h2 class="panel__title panel__title--sm">Histórico de caronas</h2>
+          <p class="panel__sub">Corridas já realizadas e pagas.</p>
+
+          <div id="lista-historico" class="lista-solicitacoes">
+            <!-- preenchido via JS -->
+          </div>
+
+          <p class="lista-vazia" id="historico-vazio" hidden>Você ainda não realizou nenhuma carona.</p>
+        </div>
       </div>
     </section>
 
