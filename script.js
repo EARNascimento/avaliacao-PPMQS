@@ -13,6 +13,7 @@ const db = {
       nome: "Ana Souza",
       email: "ana.souza@universidade.edu.br",
       senha: "123456",
+      cartao: { nome: "ANA SOUZA", final: "4242", validade: "09/29" },
     },
     {
       id: "u2",
@@ -20,6 +21,7 @@ const db = {
       nome: "Carlos Lima",
       email: "carlos.lima@universidade.edu.br",
       senha: "123456",
+      saldo: 0,
       veiculo: {
         modelo: "Chevrolet Onix",
         placa: "ABC1D23",
@@ -41,6 +43,9 @@ db.caronas = [
     status: "pendente", // pendente | aceita | recusada
     motoristaId: null,
     motoristaNome: null,
+    distanciaKm: 6.4,
+    valor: 16.52,
+    transferido: false,
   },
 ];
 
@@ -200,17 +205,82 @@ function abrirPainel() {
 
   if (ehMotorista) {
     renderSolicitacoesMotorista();
+    renderCorridaAceita();
+    atualizarSaldoMotorista();
   } else {
-    renderStatusUniversitario();
+    atualizarPainelUniversitario();
   }
 
   irParaTela("painel");
 }
 
+// ---- Utilitário: formatação de moeda ---------------------------
+function formatarMoeda(valor) {
+  return `R$ ${valor.toFixed(2).replace(".", ",")}`;
+}
+
+function calcularValorCorrida() {
+  // distância simulada, já que não há GPS real
+  const distanciaKm = Math.round((2 + Math.random() * 13) * 10) / 10;
+  const valor = Math.round((5 + distanciaKm * 1.8) * 100) / 100;
+  return { distanciaKm, valor };
+}
+
+// ---- Universitário: cartão de crédito fictício ------------------
+const formCartao = document.getElementById("form-cartao");
+const cartaoErro = document.getElementById("cartao-erro");
+const cartaoResumo = document.getElementById("cartao-resumo");
+
+function renderCartao() {
+  const temCartao = !!usuarioLogado.cartao;
+  formCartao.hidden = temCartao;
+  cartaoResumo.hidden = !temCartao;
+
+  if (temCartao) {
+    document.getElementById("cartao-resumo-numero").textContent =
+      `•••• •••• •••• ${usuarioLogado.cartao.final}`;
+    document.getElementById("cartao-resumo-nome").textContent = usuarioLogado.cartao.nome;
+  }
+}
+
+formCartao.addEventListener("submit", (evento) => {
+  evento.preventDefault();
+  esconderErro(cartaoErro);
+
+  const dados = new FormData(formCartao);
+  const nome = dados.get("nomeCartao").trim();
+  const numero = dados.get("numeroCartao").replace(/\s/g, "");
+  const validade = dados.get("validadeCartao").trim();
+  const cvv = dados.get("cvvCartao").trim();
+
+  const numeroValido = /^\d{16}$/.test(numero);
+  const validadeValida = /^(0[1-9]|1[0-2])\/\d{2}$/.test(validade);
+  const cvvValido = /^\d{3,4}$/.test(cvv);
+
+  if (!nome || !numeroValido || !validadeValida || !cvvValido) {
+    mostrarErro(
+      cartaoErro,
+      "Confira o formato: número com 16 dígitos, validade MM/AA e CVV com 3 ou 4 dígitos."
+    );
+    return;
+  }
+
+  // apenas o formato é validado (projeto acadêmico); o CVV não é guardado
+  usuarioLogado.cartao = {
+    nome,
+    final: numero.slice(-4),
+    validade,
+  };
+
+  formCartao.reset();
+  atualizarPainelUniversitario();
+});
+
 // ---- Universitário: solicitar carona e acompanhar status -----
 const formSolicitacao = document.getElementById("form-solicitacao");
 const blocoFormSolicitacao = document.getElementById("bloco-form-solicitacao");
 const blocoStatusCorrida = document.getElementById("bloco-status-corrida");
+const avisoSemCartao = document.getElementById("aviso-sem-cartao");
 
 function caronaAtivaDoUsuario() {
   // considera "ativa" qualquer solicitação do usuário que ainda não foi recusada
@@ -219,20 +289,37 @@ function caronaAtivaDoUsuario() {
   );
 }
 
-function renderStatusUniversitario() {
+function atualizarPainelUniversitario() {
+  renderCartao();
+
+  const temCartao = !!usuarioLogado.cartao;
   const carona = caronaAtivaDoUsuario();
 
-  if (!carona) {
+  if (carona) {
+    blocoFormSolicitacao.hidden = true;
+  } else {
     blocoFormSolicitacao.hidden = false;
+    formSolicitacao.hidden = !temCartao;
+    avisoSemCartao.hidden = temCartao;
+  }
+
+  renderStatusUniversitario(carona);
+}
+
+function renderStatusUniversitario(caronaAtual) {
+  const carona = caronaAtual !== undefined ? caronaAtual : caronaAtivaDoUsuario();
+
+  if (!carona) {
     blocoStatusCorrida.hidden = true;
     return;
   }
 
-  blocoFormSolicitacao.hidden = true;
   blocoStatusCorrida.hidden = false;
 
   document.getElementById("status-origem").textContent = carona.origem;
   document.getElementById("status-destino").textContent = carona.destino;
+  document.getElementById("valor-corrida-passageiro").textContent =
+    `Valor estimado: ${formatarMoeda(carona.valor)}`;
 
   const badge = document.getElementById("status-badge");
   const detalhe = document.getElementById("status-detalhe");
@@ -245,7 +332,7 @@ function renderStatusUniversitario() {
   } else if (carona.status === "aceita") {
     badge.classList.add("status-aceita");
     badge.textContent = "Motorista a caminho";
-    detalhe.textContent = `${carona.motoristaNome} aceitou sua carona.`;
+    detalhe.textContent = `${carona.motoristaNome} aceitou sua carona. Pagamento será cobrado no cartão final ${usuarioLogado.cartao.final}.`;
   }
 }
 
@@ -256,7 +343,9 @@ formSolicitacao.addEventListener("submit", (evento) => {
   const origem = dados.get("origem").trim();
   const destino = dados.get("destino").trim();
 
-  if (!origem || !destino) return;
+  if (!origem || !destino || !usuarioLogado.cartao) return;
+
+  const { distanciaKm, valor } = calcularValorCorrida();
 
   db.caronas.push({
     id: `c${proximoIdCarona++}`,
@@ -267,10 +356,13 @@ formSolicitacao.addEventListener("submit", (evento) => {
     status: "pendente",
     motoristaId: null,
     motoristaNome: null,
+    distanciaKm,
+    valor,
+    transferido: false,
   });
 
   formSolicitacao.reset();
-  renderStatusUniversitario();
+  atualizarPainelUniversitario();
 });
 
 document.getElementById("btn-cancelar-solicitacao").addEventListener("click", () => {
@@ -278,12 +370,18 @@ document.getElementById("btn-cancelar-solicitacao").addEventListener("click", ()
   if (!carona) return;
 
   db.caronas = db.caronas.filter((c) => c.id !== carona.id);
-  renderStatusUniversitario();
+  atualizarPainelUniversitario();
 });
 
 // ---- Motorista: ver e responder solicitações ------------------
 const listaSolicitacoes = document.getElementById("lista-solicitacoes");
 const listaVazia = document.getElementById("lista-vazia");
+const saldoMotoristaEl = document.getElementById("motorista-saldo");
+const blocoCorridaAceita = document.getElementById("bloco-corrida-aceita");
+
+function atualizarSaldoMotorista() {
+  saldoMotoristaEl.textContent = `Saldo disponível: ${formatarMoeda(usuarioLogado.saldo || 0)}`;
+}
 
 function renderSolicitacoesMotorista() {
   const pendentes = db.caronas.filter((c) => c.status === "pendente");
@@ -305,6 +403,7 @@ function renderSolicitacoesMotorista() {
         <span>De: ${carona.origem}</span>
         <span>Para: ${carona.destino}</span>
       </div>
+      <p class="solicitacao-card__valor">${formatarMoeda(carona.valor)} · ${carona.distanciaKm} km (simulado)</p>
       <div class="solicitacao-card__acoes">
         <button class="btn btn--primary" data-aceitar="${carona.id}">Aceitar</button>
         <button class="btn btn--reject" data-recusar="${carona.id}">Recusar</button>
@@ -332,7 +431,44 @@ function responderSolicitacao(caronaId, novoStatus) {
   }
 
   renderSolicitacoesMotorista();
+  renderCorridaAceita();
 }
+
+function corridaAceitaDoMotorista() {
+  return db.caronas.find(
+    (c) => c.motoristaId === usuarioLogado.id && c.status === "aceita" && !c.transferido
+  );
+}
+
+function renderCorridaAceita() {
+  const carona = corridaAceitaDoMotorista();
+  const btnTransferir = document.getElementById("btn-transferir");
+
+  if (!carona) {
+    blocoCorridaAceita.hidden = true;
+    return;
+  }
+
+  blocoCorridaAceita.hidden = false;
+  document.getElementById("corrida-aceita-info").innerHTML = `
+    <span><strong>Passageiro:</strong> ${carona.passageiroNome}</span>
+    <span><strong>Rota:</strong> ${carona.origem} → ${carona.destino}</span>
+    <span><strong>Valor da corrida:</strong> ${formatarMoeda(carona.valor)}</span>
+  `;
+  btnTransferir.textContent = `Transferir ${formatarMoeda(carona.valor)} para minha conta`;
+  btnTransferir.disabled = false;
+}
+
+document.getElementById("btn-transferir").addEventListener("click", () => {
+  const carona = corridaAceitaDoMotorista();
+  if (!carona) return;
+
+  usuarioLogado.saldo = (usuarioLogado.saldo || 0) + carona.valor;
+  carona.transferido = true;
+
+  atualizarSaldoMotorista();
+  renderCorridaAceita();
+});
 
 document.getElementById("btn-sair").addEventListener("click", () => {
   usuarioLogado = null;
