@@ -535,6 +535,55 @@ input:focus {
 }
 
 /* =========================================================
+   Etapa 4 — Compartilhamento de localização e histórico
+   ========================================================= */
+.compartilhar-local { margin: 0 0 1.2rem; }
+
+.compartilhar-local__resultado {
+  background: var(--bg);
+  border: 1px dashed var(--line);
+  border-radius: 10px;
+  padding: 1rem 1.1rem;
+  margin-top: 0.8rem;
+}
+
+.compartilhar-local__msg {
+  font-size: 0.88rem;
+  color: var(--ink);
+  margin: 0 0 0.7rem;
+}
+
+.compartilhar-local__link-row {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.compartilhar-local__link-row input {
+  flex: 1;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  background: var(--surface);
+}
+
+.motorista-tabs { margin-bottom: 1.4rem; max-width: 320px; }
+
+.aba-motorista { display: block; }
+
+.historico-meta {
+  display: flex;
+  gap: 0.9rem;
+  flex-wrap: wrap;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  margin-bottom: 0;
+}
+.historico-meta span:last-child {
+  font-weight: 700;
+  color: var(--teal);
+  margin-left: auto;
+}
+
+/* =========================================================
    Responsivo
    ========================================================= */
 @media (max-width: 600px) {
