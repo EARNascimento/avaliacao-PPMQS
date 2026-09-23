@@ -172,6 +172,42 @@
       <!-- ===== Painel do universitário: pedir carona / acompanhar status ===== -->
       <div class="painel-bloco" id="painel-universitario" hidden>
 
+        <div class="panel panel--wide" id="bloco-cartao">
+          <h2 class="panel__title panel__title--sm">Cartão de crédito</h2>
+          <p class="panel__sub" id="cartao-sub">Cadastre um cartão fictício — é só pra simular o pagamento, sem validação real.</p>
+
+          <form id="form-cartao" class="form">
+            <div class="form__row">
+              <label for="cartao-nome">Nome impresso no cartão</label>
+              <input type="text" id="cartao-nome" name="nomeCartao" placeholder="Ex.: MARIA S OLIVEIRA" required>
+            </div>
+            <div class="form__row">
+              <label for="cartao-numero">Número do cartão</label>
+              <input type="text" id="cartao-numero" name="numeroCartao" placeholder="0000 0000 0000 0000" maxlength="19" required>
+            </div>
+            <div class="form__row-group">
+              <div class="form__row">
+                <label for="cartao-validade">Validade (MM/AA)</label>
+                <input type="text" id="cartao-validade" name="validadeCartao" placeholder="MM/AA" maxlength="5" required>
+              </div>
+              <div class="form__row">
+                <label for="cartao-cvv">CVV</label>
+                <input type="text" id="cartao-cvv" name="cvvCartao" placeholder="123" maxlength="4" required>
+              </div>
+            </div>
+            <p class="form__error" id="cartao-erro" role="alert" hidden></p>
+            <button type="submit" class="btn btn--primary btn--full">Salvar cartão</button>
+          </form>
+
+          <div class="cartao-resumo" id="cartao-resumo" hidden>
+            <div class="cartao-resumo__visual">
+              <span class="cartao-resumo__numero" id="cartao-resumo-numero">•••• •••• •••• 0000</span>
+              <span class="cartao-resumo__nome" id="cartao-resumo-nome"></span>
+            </div>
+            <span class="status-badge status-aceita">Cartão pronto para uso</span>
+          </div>
+        </div>
+
         <div class="panel panel--wide" id="bloco-form-solicitacao">
           <h2 class="panel__title panel__title--sm">Pra onde você vai?</h2>
           <p class="panel__sub">Informe a origem e o destino. O GPS aqui é só ilustrativo — use os endereços por texto mesmo.</p>
@@ -185,8 +221,11 @@
               <label for="sol-destino">Destino</label>
               <input type="text" id="sol-destino" name="destino" placeholder="Ex.: Campus Central — Bloco B" required>
             </div>
+            <p class="form__hint">A corrida será cobrada no cartão cadastrado acima.</p>
             <button type="submit" class="btn btn--primary btn--full">Solicitar carona</button>
           </form>
+
+          <p class="aviso-bloqueio" id="aviso-sem-cartao" hidden>Cadastre um cartão de crédito acima para poder solicitar uma carona.</p>
         </div>
 
         <div class="panel panel--wide" id="bloco-status-corrida" hidden>
@@ -206,6 +245,7 @@
 
           <div class="status-badge" id="status-badge">Aguardando motorista</div>
           <p id="status-detalhe">Assim que um motorista aceitar, os dados dele aparecem aqui.</p>
+          <p class="valor-corrida" id="valor-corrida-passageiro">Valor estimado: R$ 0,00</p>
 
           <button type="button" class="btn btn--outline btn--full" id="btn-cancelar-solicitacao">Cancelar solicitação</button>
         </div>
@@ -213,6 +253,14 @@
 
       <!-- ===== Painel do motorista: solicitações recebidas ===== -->
       <div class="painel-bloco" id="painel-motorista" hidden>
+        <div class="motorista-saldo" id="motorista-saldo">Saldo disponível: R$ 0,00</div>
+
+        <div class="panel panel--wide" id="bloco-corrida-aceita" hidden>
+          <h2 class="panel__title panel__title--sm">Corrida aceita</h2>
+          <div class="corrida-aceita-info" id="corrida-aceita-info"></div>
+          <button type="button" class="btn btn--primary btn--full" id="btn-transferir">Transferir para minha conta</button>
+        </div>
+
         <h2 class="panel__title panel__title--sm">Solicitações recebidas</h2>
         <p class="panel__sub">Universitários pedindo carona na sua rota.</p>
 
