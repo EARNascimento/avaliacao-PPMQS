@@ -1,5 +1,5 @@
 /* =========================================================
-   Carona Solidária — Etapa 1: base do app + cadastro/login
+   Carona Solidária — app completo (Etapas 1 a 5)
    Dados fictícios mantidos em memória (sem backend real).
    ========================================================= */
 
@@ -209,6 +209,13 @@ formLogin.addEventListener("submit", (evento) => {
   abrirPainel();
 });
 
+// ---- Navegação: ajusta as "paradas" conforme login --------
+function atualizarNavAuth(logado) {
+  document.getElementById("nav-cadastro").hidden = logado;
+  document.getElementById("nav-login").hidden = logado;
+  document.getElementById("nav-painel").hidden = !logado;
+}
+
 // ---- Painel pós-login -----------------------------------------
 function abrirPainel() {
   const saudacao = document.getElementById("painel-saudacao");
@@ -233,6 +240,7 @@ function abrirPainel() {
     atualizarPainelUniversitario();
   }
 
+  atualizarNavAuth(true);
   irParaTela("painel");
 }
 
@@ -617,8 +625,10 @@ document.getElementById("btn-transferir").addEventListener("click", () => {
 
 document.getElementById("btn-sair").addEventListener("click", () => {
   usuarioLogado = null;
+  atualizarNavAuth(false);
   irParaTela("home");
 });
 
-// Estado inicial dos campos de veículo
+// Estado inicial: navegação deslogada e campos de veículo ocultos
+atualizarNavAuth(false);
 definirPerfilCadastro("universitario");
