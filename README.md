@@ -3,13 +3,13 @@ Resolução da questão 3 da 1ª Avaliação da matéria Processo de Produção,
 
 Professor, o login para acessar a conta da universitária é:
 
-Login:
-Senha:
+Login: ana.souza@universidade.edu.br
+Senha: 123456
 
 Para acessar a conta do motorista é:
 
-Login:
-Senha:
+Login: carlos.lima@universidade.edu.br
+Senha: 123456
 
 É interessante que a cada passo que o senhor realize, você alterne para a outra conta para visualizar as mudanças.
 
