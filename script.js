@@ -33,6 +33,24 @@ const db = {
 };
 
 db.caronas = [
+  // uma carona já concluída, pra já existir histórico pro motorista de exemplo
+  {
+    id: "c0",
+    passageiroId: "u0",
+    passageiroNome: "Bruna Martins",
+    origem: "Alameda dos Ipês, 45",
+    destino: "Campus Central — Bloco A",
+    status: "aceita",
+    motoristaId: "u2",
+    motoristaNome: "Carlos Lima",
+    distanciaKm: 8.2,
+    valor: 19.76,
+    transferido: true,
+    localizacaoCompartilhada: true,
+    linkLocalizacao: "https://caronasolidaria.app/loc/c0",
+    criadaEm: new Date("2026-09-15T08:05:00"),
+    concluidaEm: new Date("2026-09-15T08:47:00"),
+  },
   // uma solicitação de exemplo, já pendente, pro motorista de exemplo ver algo ao entrar
   {
     id: "c1",
@@ -46,6 +64,10 @@ db.caronas = [
     distanciaKm: 6.4,
     valor: 16.52,
     transferido: false,
+    localizacaoCompartilhada: false,
+    linkLocalizacao: null,
+    criadaEm: new Date(),
+    concluidaEm: null,
   },
 ];
 
@@ -214,9 +236,17 @@ function abrirPainel() {
   irParaTela("painel");
 }
 
-// ---- Utilitário: formatação de moeda ---------------------------
+// ---- Utilitário: formatação de moeda e data ---------------------
 function formatarMoeda(valor) {
   return `R$ ${valor.toFixed(2).replace(".", ",")}`;
+}
+
+function formatarData(data) {
+  return data.toLocaleDateString("pt-BR");
+}
+
+function formatarHora(data) {
+  return data.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
 }
 
 function calcularValorCorrida() {
@@ -334,7 +364,60 @@ function renderStatusUniversitario(caronaAtual) {
     badge.textContent = "Motorista a caminho";
     detalhe.textContent = `${carona.motoristaNome} aceitou sua carona. Pagamento será cobrado no cartão final ${usuarioLogado.cartao.final}.`;
   }
+
+  renderCompartilharLocal(carona);
 }
+
+// ---- Universitário: compartilhar localização (simulado) ---------
+const compartilharLocalBloco = document.getElementById("compartilhar-local");
+const compartilharLocalResultado = document.getElementById("compartilhar-local-resultado");
+const btnCompartilharLocal = document.getElementById("btn-compartilhar-local");
+const linkLocalInput = document.getElementById("compartilhar-local-link");
+
+function renderCompartilharLocal(carona) {
+  // só faz sentido compartilhar localização com a carona já aceita, em andamento
+  if (carona.status !== "aceita") {
+    compartilharLocalBloco.hidden = true;
+    return;
+  }
+
+  compartilharLocalBloco.hidden = false;
+
+  if (carona.localizacaoCompartilhada) {
+    btnCompartilharLocal.hidden = true;
+    compartilharLocalResultado.hidden = false;
+    document.getElementById("compartilhar-local-msg").textContent =
+      `Localização compartilhada com ${carona.motoristaNome}.`;
+    linkLocalInput.value = carona.linkLocalizacao;
+  } else {
+    btnCompartilharLocal.hidden = false;
+    compartilharLocalResultado.hidden = true;
+  }
+}
+
+btnCompartilharLocal.addEventListener("click", () => {
+  const carona = caronaAtivaDoUsuario();
+  if (!carona) return;
+
+  // link fictício simulando o compartilhamento — não há GPS ou serviço real por trás
+  const codigo = Math.random().toString(36).slice(2, 8);
+  carona.localizacaoCompartilhada = true;
+  carona.linkLocalizacao = `https://caronasolidaria.app/loc/${carona.id}-${codigo}`;
+
+  renderCompartilharLocal(carona);
+});
+
+document.getElementById("btn-copiar-link").addEventListener("click", async () => {
+  const botao = document.getElementById("btn-copiar-link");
+  try {
+    await navigator.clipboard.writeText(linkLocalInput.value);
+  } catch {
+    linkLocalInput.select();
+  }
+  const textoOriginal = botao.textContent;
+  botao.textContent = "Copiado!";
+  setTimeout(() => (botao.textContent = textoOriginal), 1500);
+});
 
 formSolicitacao.addEventListener("submit", (evento) => {
   evento.preventDefault();
@@ -359,6 +442,10 @@ formSolicitacao.addEventListener("submit", (evento) => {
     distanciaKm,
     valor,
     transferido: false,
+    localizacaoCompartilhada: false,
+    linkLocalizacao: null,
+    criadaEm: new Date(),
+    concluidaEm: null,
   });
 
   formSolicitacao.reset();
@@ -459,15 +546,73 @@ function renderCorridaAceita() {
   btnTransferir.disabled = false;
 }
 
+// ---- Motorista: abas (solicitações / histórico) -----------------
+const abaSolicitacoes = document.getElementById("aba-solicitacoes");
+const abaHistorico = document.getElementById("aba-historico");
+
+document.querySelectorAll(".motorista-tabs .perfil-toggle__btn").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const aba = btn.dataset.aba;
+
+    document.querySelectorAll(".motorista-tabs .perfil-toggle__btn").forEach((b) => {
+      const ativo = b === btn;
+      b.classList.toggle("is-active", ativo);
+      b.setAttribute("aria-selected", String(ativo));
+    });
+
+    abaSolicitacoes.hidden = aba !== "solicitacoes";
+    abaHistorico.hidden = aba !== "historico";
+
+    if (aba === "historico") renderHistoricoMotorista();
+  });
+});
+
+const listaHistorico = document.getElementById("lista-historico");
+const historicoVazio = document.getElementById("historico-vazio");
+
+function renderHistoricoMotorista() {
+  const realizadas = db.caronas
+    .filter((c) => c.motoristaId === usuarioLogado.id && c.transferido)
+    .sort((a, b) => b.concluidaEm - a.concluidaEm);
+
+  listaHistorico.innerHTML = "";
+
+  if (realizadas.length === 0) {
+    historicoVazio.hidden = false;
+    return;
+  }
+  historicoVazio.hidden = true;
+
+  realizadas.forEach((carona) => {
+    const card = document.createElement("div");
+    card.className = "solicitacao-card";
+    card.innerHTML = `
+      <p class="solicitacao-card__passageiro">${carona.passageiroNome}</p>
+      <div class="solicitacao-card__rota">
+        <span>De: ${carona.origem}</span>
+        <span>Para: ${carona.destino}</span>
+      </div>
+      <div class="historico-meta">
+        <span>${formatarData(carona.concluidaEm)}</span>
+        <span>${formatarHora(carona.concluidaEm)}</span>
+        <span>${formatarMoeda(carona.valor)}</span>
+      </div>
+    `;
+    listaHistorico.appendChild(card);
+  });
+}
+
 document.getElementById("btn-transferir").addEventListener("click", () => {
   const carona = corridaAceitaDoMotorista();
   if (!carona) return;
 
   usuarioLogado.saldo = (usuarioLogado.saldo || 0) + carona.valor;
   carona.transferido = true;
+  carona.concluidaEm = new Date();
 
   atualizarSaldoMotorista();
   renderCorridaAceita();
+  renderHistoricoMotorista();
 });
 
 document.getElementById("btn-sair").addEventListener("click", () => {
