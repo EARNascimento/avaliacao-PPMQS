@@ -15,14 +15,17 @@
   <header class="route-nav">
     <div class="route-nav__brand">Carona<span>Solidária</span></div>
     <nav class="route-stops" aria-label="Navegação principal">
-      <button class="stop is-active" data-screen="home">
+      <button class="stop is-active" data-screen="home" id="nav-home">
         <span class="stop__dot"></span><span class="stop__label">Início</span>
       </button>
-      <button class="stop" data-screen="cadastro">
+      <button class="stop" data-screen="cadastro" id="nav-cadastro">
         <span class="stop__dot"></span><span class="stop__label">Cadastro</span>
       </button>
-      <button class="stop" data-screen="login">
+      <button class="stop" data-screen="login" id="nav-login">
         <span class="stop__dot"></span><span class="stop__label">Entrar</span>
+      </button>
+      <button class="stop" data-screen="painel" id="nav-painel" hidden>
+        <span class="stop__dot"></span><span class="stop__label">Meu painel</span>
       </button>
     </nav>
   </header>
@@ -159,7 +162,7 @@
       </div>
     </section>
 
-    <!-- ===== TELA: PAINEL (pós-login, base para próximos incrementos) ===== -->
+    <!-- ===== TELA: PAINEL (pós-login) ===== -->
     <section class="screen" id="screen-painel">
       <div class="painel-header">
         <div>
