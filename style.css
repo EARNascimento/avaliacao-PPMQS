@@ -456,6 +456,85 @@ input:focus {
 }
 
 /* =========================================================
+   Etapa 3 — Cartão de crédito, valor da corrida e saldo
+   ========================================================= */
+.form__hint {
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  margin: -0.4rem 0 1rem;
+}
+
+.cartao-resumo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  align-items: flex-start;
+}
+
+.cartao-resumo__visual {
+  width: 100%;
+  background: linear-gradient(135deg, var(--ink) 0%, #33424c 100%);
+  color: #fff;
+  border-radius: 12px;
+  padding: 1.3rem 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.6rem;
+  font-family: var(--font-display);
+}
+
+.cartao-resumo__numero { font-size: 1.05rem; letter-spacing: 0.06em; }
+.cartao-resumo__nome { font-size: 0.8rem; opacity: 0.8; text-transform: uppercase; }
+
+.valor-corrida {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--ink);
+  margin: 0.8rem 0 1.2rem;
+}
+
+.aviso-bloqueio {
+  background: rgba(193, 68, 58, 0.08);
+  border: 1px solid rgba(193, 68, 58, 0.25);
+  color: var(--brick);
+  padding: 0.7rem 0.9rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+/* Saldo e corrida aceita — motorista */
+.motorista-saldo {
+  display: inline-block;
+  background: rgba(44, 110, 99, 0.12);
+  color: var(--teal);
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 0.55rem 1rem;
+  border-radius: 999px;
+  margin-bottom: 1.4rem;
+}
+
+.corrida-aceita-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.92rem;
+  color: var(--ink-soft);
+  margin-bottom: 1rem;
+}
+.corrida-aceita-info strong { color: var(--ink); }
+
+.solicitacao-card__valor {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--teal);
+  font-size: 0.95rem;
+  margin-bottom: 0.9rem;
+}
+
+/* =========================================================
    Responsivo
    ========================================================= */
 @media (max-width: 600px) {
